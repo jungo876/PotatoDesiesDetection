@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 import tensorflow as tf
+import os
 
 app = FastAPI()
 app.add_middleware(
@@ -14,8 +15,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-MODEL = tf.keras.models.load_model("../saved_models/potato_model_1.keras")
+MODEL_PATH = MODEL_PATH = os.path.join(os.path.dirname(__file__), "saved_models", "potato_model_1.keras")
+MODEL = tf.keras.models.load_model(MODEL_PATH)
 CLASS_NAMES = ['Early_blight', 'Late_blight', 'Healthy']
 
 @app.get("/ping")
@@ -39,4 +40,5 @@ async def predict(file: UploadFile = File(...)):
         return {"error":str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost",port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
